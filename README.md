@@ -2,6 +2,51 @@
 
 This repository contains workshop materials for the workshop, "Getting Started with the Python Multiprocessing Package" at the University of Michigan.
 
+## Python Memory Management
+Reference counting
+
+Tracks the number of references to every created object
+
+When reference count is zero, the object can be released from memory
+
+### Reference Counting and Multithreading
+Multiple threads running simultaneously can cause problems
+
+Race condition
+
+Multiple threads change an object’s reference count simultaneously
+
+
+## Mutual Exclusion (Lock)
+Software mechanism that prevents multiple threads from executing critical code simultaneously
+
+Critical code
+
+Code that accesses a shared/critical resource (such as an object’s reference count)
+
+
+## The Global Interpreter Lock (GIL)
+A mutual exclusion/lock on the Python interpreter
+
+Solution to protecting reference count
+
+Allows only one thread to execute at any point in time
+
+Causes bottleneck for CPU-bound code
+
+
+## Why Use Threads in Python?
+Allows work to be done in one thread while another thread is waiting
+
+Examples:
+
+I/O heavy process.
+
+Can do other processing while waiting for disk
+
+Web requests or database connection
+
+Can do other processing while waiting for response from server
 
 ## Using threads to speed up I/O bound code.
 ```python
@@ -41,6 +86,30 @@ if __name__ == "__main__":
 		thread.join()
 ```
 
+## Concurrency vs Parallelism
+Concurrency is when two or more tasks can start, run, and complete in overlapping time periods.
+Example: multitasking on a single-core machine.
+
+Parallelism is when tasks literally run at the same time, e.g., on a multicore processor.
+
+
+## How Can We Achieve True Parallelism in Python?
+The multiprocessing package​
+
+Parallelizes code by using multiple processes instead of multiple threads​
+
+Completely avoids the issue  of the GIL​
+
+Each process has its own interpreter instance​
+
+Multiple processes can take advantage of multicore CPU
+
+## The multiprocessing package
+
+We will cover some of the basic functionality of the multiprocessing package
+
+There are MANY more features
+
 
 
 
@@ -78,6 +147,13 @@ if __name__=="__main__":
        print("We're done")
 
 ```
+
+## multiprocessing.Pool class
+Represents a pool of worker proceses
+
+Run tasks in worker processes
+
+Very easy way to parallelize code
 
 
 
