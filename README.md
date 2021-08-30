@@ -124,27 +124,44 @@ print(f"I have {multiprocessing.cpu_count()} CPU cores available!")
 ## Using the multiprocessing.Process class
 ```python
 import multiprocessing
+from random import choice
 from multiprocessing import Process
 
-def testing():
-       print("Works")
-def square(n):
-       print("The number squares to ",n**2)
+def _mean(x):
+    total = sum(x)
+    mean = total / len(x)
 
-def cube(n):
-       print("The number cubes to ",n**3)
+    print(f'The mean of x is {mean}')
+
+
+def product(x):
+    result = 1
+
+    for value in x:
+        result = result * value
+
+    print(f'The product of x is {result}')
+
+
+def randomNumber(x):
+    print(f'We selected {choice(x)} from x.')
 
 if __name__=="__main__":
-       p1=Process(target=square,args=(7,))
-       p2=Process(target=cube,args=(7,))
-       p3=Process(target=testing)
-       p1.start()
-       p2.start()
-       p3.start()
-       p1.join()
-       p2.join()
-       p3.join()
-       print("We're done")
+    x = [1, 3, 5, 7, 9]
+
+    p1=Process(target=_mean, args=(x,))
+    p2=Process(target=product, args=(x,))
+    p3=Process(target=randomNumber, args=(x,))
+
+    p1.start()
+    p2.start()
+    p3.start()
+
+    p1.join()
+    p2.join()
+    p3.join()
+
+    print('Done')
 
 ```
 
@@ -159,13 +176,59 @@ Very easy way to parallelize code
 
 ## Using the Pool.map() function
 ```python
+import multiprocessing
+import random
 
+
+def toCelsius(degrees):
+	return (degrees - 32) * (5.0/9.0)
+
+
+
+if __name__ == "__main__":
+	numProcesses = 4
+
+	#Generate some random temperatures in Fahrenheit
+	temperatures = [random.uniform(32.0, 100.0) for i in range(50)]
+
+	#Convert them using pool.map()
+	with multiprocessing.Pool(numProcesses) as pool:
+		converted = pool.map(toCelsius, temperatures)
+
+		#Display our results.
+		for i in range(len(temperatures)):
+			print(f'{temperatures[i]:.1f} Fahrenheit is the same as {converted[i]:.1f} Celsius.')
 
 ```
 
 ## Using the Pool.starmap() function
 ```python
+import multiprocessing
+import random
 
+
+
+def product(a, b):
+	return a * b
+
+
+
+if __name__ == "__main__":
+	numProcesses = 4
+	
+	#Create some random pairs.
+	pairs = [(1, 3), (5, 9), (2, 3), (4, 5), (10, 30), (5, 7)]
+
+	#Calculate the product of each pair using pool.starmap()
+	with multiprocessing.Pool(numProcesses) as pool:
+		products = pool.starmap(product, pairs)
+
+
+		#Display our results.
+		for i in range(len(pairs)):
+			pair = pairs[i]
+
+			print(f'{pair[0]} * {pair[1]} = {products[i]}.')
 
 ```
 
