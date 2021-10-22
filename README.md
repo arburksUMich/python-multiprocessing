@@ -50,19 +50,26 @@ Can do other processing while waiting for response from server
 
 ## Using threads to speed up I/O bound code.
 ```python
-
 import random
 
 from time import sleep
 from threading import Thread
+from multiprocessing import Pool
 
 
 
-"""
-This example function simulates a task that performs some I/O operation such as making a web request, connecting to a database, etc.
-We pretend that this operation takes a total of two seconds by using the sleep() function.
-"""
 def doWork(taskNumber):
+	"""This example function simulates a task that performs some
+	I/O operation such as making a web request, connecting to a
+	database, etc.
+
+	We pretend that this operation takes a total of two seconds
+	by using the sleep() function.
+
+	Keyword arguments:
+	taskNumber -- represents the thread in which this function is executing
+	"""
+
 	sleep(2)
 	print(f'Task {taskNumber} done.')
 
@@ -73,15 +80,23 @@ Simple main function that creates an array of threads and runs our fancy doWork(
 This shows one good use case of threads: threads are useful for speeding up code that is I/O-bound rather than CPU-bound.
 """
 if __name__ == "__main__":
+	#First, let's call doWork() 8 times in a loop for comparison.
+	print('Using a loop ...')
+
+	for i in range(8):
+		doWork(i)
+
+
+	#Create 8 threads and call the doWork() function in each thread
 	threads = []
 
-  #Create 8 threads and call the doWork() function in each thread
+	print('\nUsing threading ...')
 	for i in range(8):	
 		thread = Thread(target=doWork, args=(i,))
 		threads.append(thread)
 		thread.start()
 	
-  #Wait for all the threads to finish.
+	#Wait for all the threads to finish.
 	for thread in threads:
 		thread.join()
 ```
@@ -117,6 +132,7 @@ There are MANY more features
 ```python
 import multiprocessing
 
+#Short example demonstrating how to determine the number of cores available.
 numCores = multiprocessing.cpu_count()
 
 print(f"I have {numCores} CPU cores available!")
@@ -129,16 +145,20 @@ import multiprocessing
 from random import choice
 from multiprocessing import Process
 
-#Simple function to calculate the mean of an input list, x.
+
 def _mean(x):
+    """Simple function to calculate the mean of an input list, x."""
+
     total = sum(x)
     mean = total / len(x)
 
     print(f'The mean of x is {mean}')
 
 
-#Simple function to calculate the product of an input list, x.
+
 def product(x):
+    """Simple function to calculate the product of an input list, x."""
+
     result = 1
 
     for value in x:
@@ -147,12 +167,16 @@ def product(x):
     print(f'The product of x is {result}')
 
 
-#Simple function that selects a random item from the input list, x.
+
 def randomNumber(x):
+    """Simple function to select a random item from the input list, x."""
+
     print(f'We selected {choice(x)} from x.')
 
 
 
+"""Simple main function that creates 3 processes to run 3 separate
+functions in parallel."""
 if __name__=="__main__":
     x = [1, 3, 5, 7, 9]
 
@@ -174,7 +198,6 @@ if __name__=="__main__":
 
     #This will print only after all 3 processes have returned.
     print('Done')
-
 ```
 
 ## multiprocessing.Pool class
@@ -192,22 +215,19 @@ import multiprocessing
 import random
 
 
-#Function to convert a temperature from Fahrenheit to Celsius.
-import multiprocessing
-import random
-
-
-#Function to convert a temperature from Fahrenheit to Celsius.
 def toCelsius(degrees):
+	"""Function to convert a temperature from Fahrenheit to Celsius."""
+
 	return (degrees - 32) * (5.0/9.0)
 
 
 
-#Our main function. Notice that the parallel code is wrapped inside the if __name__ == "__main__":
+"""Our main function. Notice that the parallel code is wrapped
+inside the if __name__ == "__main__":"""
 if __name__ == "__main__":
 	numProcesses = 4
 
-	#Generate some random temperatures in Fahrenheit
+	#Generate a list of random temperatures in Fahrenheit
 	temperatures = [random.uniform(32.0, 100.0) for i in range(50)]
 
 	#Convert them in parallel using pool.map()
@@ -226,13 +246,17 @@ import multiprocessing
 import random
 
 
-#Computes a * b. We will use pool.starmap() to call this function
-#with 2 arguments.
 def product(a, b):
+	"""Computes a * b.
+
+	We will use pool.starmap() to call this function since it
+	has 2 arguments."""
+
 	return a * b
 
 
-#Our main function. Notice that the parallel code is wrapped inside the if __name__ == "__main__":
+"""Our main function. Notice that the parallel code is wrapped
+inside the if __name__ == "__main__":"""
 if __name__ == "__main__":
 	numProcesses = 4
 	
@@ -251,8 +275,6 @@ if __name__ == "__main__":
 
 			print(f'{pair[0]} * {pair[1]} = {products[i]}.')
 
-
-
 ```
 
 
@@ -260,17 +282,20 @@ if __name__ == "__main__":
 ```python
 import sys
 
-nsteps = int(sys.argv[1]) #go up to 100,000,000
+"""Get the number of steps to use from the command line.
+As the number of steps increase, the estimate gets more
+accurate. However, it also takes more time to process.
+Let's try different nSteps, up to 100,000,000."""
+nSteps = int(sys.argv[1])
 
-#Estimate pi by summing our formula over nsteps
+#Estimate pi by summing our formula over nSteps
 pi = 0.0
 
-#Calculate our estimate of pi using our formula
-for i in range(nsteps):
-    x = (i + 0.5) / nsteps
+for i in range(nSteps):
+    x = (i + 0.5) / nSteps
     pi += 4.0 / (1.0 + x * x)
 
-pi /= nsteps
+pi /= nSteps
 
 print(pi)
 
@@ -280,40 +305,41 @@ print(pi)
 ## Estimating the value of pi - Parallel Version
 ```python
 #Adapted from https://www.kth.se/blogs/pdc/2019/02/parallel-programming-in-python-multiprocessing-part-1/
-#This short example shows how to use the Pool.starmap() function to parallelize a function that requires
-#multiple arguments.
 import multiprocessing
 import sys
 
 
 
-#This function uses our formula to calculate the partial result.
-#params:    rank - determines where from 1 to numProcesses our loop should start
-#           nsteps - the total number of iterations we will use to estimate Pi
-#           numProcesses - how many processes we are using for parallelism.
-def partialPi(rank, numProcesses, nsteps):
+def partialPi(rank, numProcesses, nSteps):
+    """This function uses our formula to calculate the partial result.
+
+    Keyword arguments:    
+    rank   -- determines where from 1 to numProcesses our loop should start
+    nSteps -- the total number of iterations we will use to estimate Pi
+    numProcesses -- how many processes we are using for parallelism."""
+
     partial = 0.0
 
     #The loop is setup so that each process will only sum it's own chunk
     #of numbers as we calculate the partial answer.
-    for i in range(rank, nsteps, numProcesses):
-        x = (i + 0.5) /nsteps
+    for i in range(rank, nSteps, numProcesses):
+        x = (i + 0.5) /nSteps
         partial += 4.0 / (1.0 + x**2)
-        
-    partial /= nsteps
+
+    partial /= nSteps
 
     return partial
 
 
 
-#Remember to wrap your multiprocessing functionality in the main function
+"""Remember to wrap your multiprocessing functionality in the main function."""
 if __name__ == "__main__":
-    nsteps = int(sys.argv[1]) #go up to 100,000,000
+    nSteps = int(sys.argv[1]) #go up to 100,000,000
     numProcesses = 4
 
 
     #This is a way of splitting our problem (the range of iterations) into chunks
-    inputs = [(rank, numProcesses, nsteps) for rank in range(numProcesses)]
+    inputs = [(rank, numProcesses, nSteps) for rank in range(numProcesses)]
 
     with multiprocessing.Pool(numProcesses) as pool:
         #Use pool.starmap() to run our partialPi() function, which requires multiple inputs
