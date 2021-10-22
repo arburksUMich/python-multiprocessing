@@ -117,34 +117,63 @@ There are MANY more features
 ```python
 import multiprocessing
 
-print(f"I have {multiprocessing.cpu_count()} CPU cores available!")
+numCores = multiprocessing.cpu_count()
+
+print(f"I have {numCores} CPU cores available!")
 
 ```
 
 ## Using the multiprocessing.Process class
 ```python
 import multiprocessing
+from random import choice
 from multiprocessing import Process
 
-def testing():
-       print("Works")
-def square(n):
-       print("The number squares to ",n**2)
+#Simple function to calculate the mean of an input list, x.
+def _mean(x):
+    total = sum(x)
+    mean = total / len(x)
 
-def cube(n):
-       print("The number cubes to ",n**3)
+    print(f'The mean of x is {mean}')
+
+
+#Simple function to calculate the product of an input list, x.
+def product(x):
+    result = 1
+
+    for value in x:
+        result = result * value
+
+    print(f'The product of x is {result}')
+
+
+#Simple function that selects a random item from the input list, x.
+def randomNumber(x):
+    print(f'We selected {choice(x)} from x.')
+
+
 
 if __name__=="__main__":
-       p1=Process(target=square,args=(7,))
-       p2=Process(target=cube,args=(7,))
-       p3=Process(target=testing)
-       p1.start()
-       p2.start()
-       p3.start()
-       p1.join()
-       p2.join()
-       p3.join()
-       print("We're done")
+    x = [1, 3, 5, 7, 9]
+
+    #Create 3 processes to run each of our functions on x, asynchronously.
+    p1=Process(target=_mean, args=(x,))
+    p2=Process(target=product, args=(x,))
+    p3=Process(target=randomNumber, args=(x,))
+
+    #Call start() on each of the processes to begin execution.
+    p1.start()
+    p2.start()
+    p3.start()
+
+    #Wait for each of the processes to return.
+    p1.join()
+    p2.join()
+    p3.join()
+
+
+    #This will print only after all 3 processes have returned.
+    print('Done')
 
 ```
 
@@ -159,59 +188,139 @@ Very easy way to parallelize code
 
 ## Using the Pool.map() function
 ```python
+import multiprocessing
+import random
 
+
+#Function to convert a temperature from Fahrenheit to Celsius.
+import multiprocessing
+import random
+
+
+#Function to convert a temperature from Fahrenheit to Celsius.
+def toCelsius(degrees):
+	return (degrees - 32) * (5.0/9.0)
+
+
+
+#Our main function. Notice that the parallel code is wrapped inside the if __name__ == "__main__":
+if __name__ == "__main__":
+	numProcesses = 4
+
+	#Generate some random temperatures in Fahrenheit
+	temperatures = [random.uniform(32.0, 100.0) for i in range(50)]
+
+	#Convert them in parallel using pool.map()
+	with multiprocessing.Pool(numProcesses) as pool:
+		converted = pool.map(toCelsius, temperatures)
+
+		#Display our results.
+		for i in range(len(temperatures)):
+			print(f'{temperatures[i]:.1f} Fahrenheit is the same as {converted[i]:.1f} Celsius.')
 
 ```
 
 ## Using the Pool.starmap() function
 ```python
+import multiprocessing
+import random
+
+
+#Computes a * b. We will use pool.starmap() to call this function
+#with 2 arguments.
+def product(a, b):
+	return a * b
+
+
+#Our main function. Notice that the parallel code is wrapped inside the if __name__ == "__main__":
+if __name__ == "__main__":
+	numProcesses = 4
+	
+	#Create some random pairs of input numbers.
+	pairs = [(1, 3), (5, 9), (2, 3), (4, 5), (10, 30), (5, 7)]
+
+	#Calculate the product of each pair using pool.starmap()
+	with multiprocessing.Pool(numProcesses) as pool:
+		#Note the second argument for starmap() is a list of tuples
+		products = pool.starmap(product, pairs)
+
+
+		#Display our results.
+		for i in range(len(pairs)):
+			pair = pairs[i]
+
+			print(f'{pair[0]} * {pair[1]} = {products[i]}.')
+
 
 
 ```
 
 
-## Estimating the value of pi - Serial
+## Estimating the value of pi - Serial Version
 ```python
-nsteps = 100000000
-dx = 1.0 / nsteps
+import sys
+
+nsteps = int(sys.argv[1]) #go up to 100,000,000
+
+#Estimate pi by summing our formula over nsteps
 pi = 0.0
+
+#Calculate our estimate of pi using our formula
 for i in range(nsteps):
-    x = (i + 0.5) * dx
+    x = (i + 0.5) / nsteps
     pi += 4.0 / (1.0 + x * x)
-pi *= dx
+
+pi /= nsteps
 
 print(pi)
 
 ```
 
 
-## Estimating the value of pi - Parallel
+## Estimating the value of pi - Parallel Version
 ```python
-import multiprocessing as mp
-
-nsteps = 100000000
-dx = 1.0 / nsteps
-pi = 0.0
-
-def calc_partial_pi(rank, nprocs, nsteps, dx):
-    partial_pi = 0.0
-
-    for i in range(rank, nsteps, nprocs):
-        x = (i + 0.5) * dx
-        partial_pi += 4.0 / (1.0 + x**2)
-    partial_pi *= dx
-
-    return partial_pi
+#Adapted from https://www.kth.se/blogs/pdc/2019/02/parallel-programming-in-python-multiprocessing-part-1/
+#This short example shows how to use the Pool.starmap() function to parallelize a function that requires
+#multiple arguments.
+import multiprocessing
+import sys
 
 
-nprocs = 4
-inputs = [(rank, nprocs, nsteps, dx) for rank in range(nprocs)]
 
-pool = mp.Pool(processes=nprocs)
+#This function uses our formula to calculate the partial result.
+#params:    rank - determines where from 1 to numProcesses our loop should start
+#           nsteps - the total number of iterations we will use to estimate Pi
+#           numProcesses - how many processes we are using for parallelism.
+def partialPi(rank, numProcesses, nsteps):
+    partial = 0.0
 
-result = pool.starmap(calc_partial_pi, inputs)
-pi = sum(result)
+    #The loop is setup so that each process will only sum it's own chunk
+    #of numbers as we calculate the partial answer.
+    for i in range(rank, nsteps, numProcesses):
+        x = (i + 0.5) /nsteps
+        partial += 4.0 / (1.0 + x**2)
+        
+    partial /= nsteps
 
-print(pi)
+    return partial
 
+
+
+#Remember to wrap your multiprocessing functionality in the main function
+if __name__ == "__main__":
+    nsteps = int(sys.argv[1]) #go up to 100,000,000
+    numProcesses = 4
+
+
+    #This is a way of splitting our problem (the range of iterations) into chunks
+    inputs = [(rank, numProcesses, nsteps) for rank in range(numProcesses)]
+
+    with multiprocessing.Pool(numProcesses) as pool:
+        #Use pool.starmap() to run our partialPi() function, which requires multiple inputs
+        result = pool.starmap(partialPi, inputs)
+
+        #result is a list of the partial answers, we can sum them to estimate Pi.
+        pi = sum(result)
+
+        print(pi)
 ```
