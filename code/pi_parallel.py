@@ -9,8 +9,8 @@ def partialPi(rank, numProcesses, nSteps):
 
     Keyword arguments:    
     rank   -- determines where from 1 to numProcesses our loop should start
-    nSteps -- the total number of iterations we will use to estimate Pi
-    numProcesses -- how many processes we are using for parallelism."""
+    numProcesses -- how many processes we are using for parallelism.
+    nSteps -- the total number of iterations we will use to estimate Pi"""
     
     partial = 0.0
 
@@ -37,9 +37,9 @@ if __name__ == "__main__":
 
     with multiprocessing.Pool(numProcesses) as pool:
         #Use pool.starmap() to run our partialPi() function, which requires multiple inputs
-        result = pool.starmap(partialPi, inputs)
+        partialResults = pool.starmap(partialPi, inputs)
 
-        #result is a list of the partial answers, we can sum them to estimate Pi.
-        pi = sum(result)
+        #partialResults is a list of the partial answers, we can sum them to estimate Pi.
+        pi = sum(partialResults)
 
         print(pi)
