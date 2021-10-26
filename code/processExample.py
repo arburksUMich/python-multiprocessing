@@ -1,6 +1,5 @@
-import multiprocessing
-from random import choice
 from multiprocessing import Process
+from random import choice
 
 
 def _mean(x):
