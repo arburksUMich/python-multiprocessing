@@ -1,5 +1,4 @@
 import multiprocessing
-import random
 
 
 def product(a, b):
