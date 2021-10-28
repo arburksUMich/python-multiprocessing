@@ -1,6 +1,6 @@
 # Getting Started with the Python Multiprocessing Package
 
-This repository contains workshop materials for the workshop, "Getting Started with the Python Multiprocessing Package" at the University of Michigan. See the slides directory for a PDF version of the slides. The code directory contains all the source code we will use for the exercises. The video recording from the workshop can be found at https://www.mivideo.it.umich.edu/media/t/1_i60d4nfu/181860561 (requires U-M authentication)
+This repository contains workshop materials for the workshop, "Getting Started with the Python Multiprocessing Package" at the University of Michigan. See the slides directory for a PDF version of the slides. The code directory contains all the source code we will use for the exercises. The video recording from the workshop can be found at https://www.mivideo.it.umich.edu/media/t/1_i60d4nfu/181860561 (requires U-M authentication).
 
 ## Python Memory Management
 We begin with a brief discussion on memory management in Python. Soon, we will see why this matters in the context of multitasking and multiprocessing.
