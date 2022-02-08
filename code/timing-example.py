@@ -1,22 +1,19 @@
-from time import sleep
+import requests
+
 from threading import Thread
 
 
 
 def doWork(taskNumber):
-	"""This example function simulates a task that performs some
-	I/O operation such as making a web request, connecting to a
-	database, etc.
+	"""This example function simulates a task that makes a web request, which takes
+           a little bit of time to return.
 
-	We pretend that this operation takes a total of two seconds
-	by using the sleep() function.
 
 	Keyword arguments:
 	taskNumber -- represents the thread in which this function is executing
 	"""
-	
-	sleep(2)
-	print(f'Task {taskNumber} done.')
+	response = requests.get('https://en.wikipedia.org/wiki/Special:Random')
+	print(f'URL {taskNumber}: {response.url}')
 
 
 
