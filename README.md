@@ -41,28 +41,21 @@ Before we move into our discussion on multiprocessing, let's look at a quick exa
 ## Using Threads to Speed up I/O-Bound Code.
 Our first coding exercise shows how threading can be used in Python to speed up I/O bound code.
 ```Python
-import random
+import requests
 
-from time import sleep
 from threading import Thread
-from multiprocessing import Pool
 
 
 
 def doWork(taskNumber):
-	"""This example function simulates a task that performs some
-	I/O operation such as making a web request, connecting to a
-	database, etc.
-
-	We pretend that this operation takes a total of two seconds
-	by using the sleep() function.
-
+	"""This example function simulates a task that makes a web request, which takes
+           a little bit of time to return.
 	Keyword arguments:
 	taskNumber -- represents the thread in which this function is executing
 	"""
+	response = requests.get('https://en.wikipedia.org/wiki/Special:Random')
+	print(f'URL {taskNumber}: {response.url}')
 
-	sleep(2)
-	print(f'Task {taskNumber} done.')
 
 
 
